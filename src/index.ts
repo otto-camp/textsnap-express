@@ -14,7 +14,7 @@ app.post("/", upload.single("image"), (req: Request, res: Response) => {
   if (req.file) {
     getText(req.file.path)
       .then((text) => {
-        res.status(200).send(text);
+        res.send(text);
       })
       .catch((error) => {
         res.status(404).send(error);
@@ -37,7 +37,7 @@ async function getText(imagePath: string): Promise<string> {
         const {
           data: { text },
         } = await worker.recognize(imagePath);
-        console.log(text);
+        resolve(text);
 
         await worker.terminate();
       })();
