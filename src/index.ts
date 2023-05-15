@@ -2,15 +2,14 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
+import fs from "fs";
 
 const app = express();
+app.use(cors());
 
 const upload = multer({ dest: "uploads/" });
 
-app.use(cors());
-
 app.post("/", upload.single("image"), (req: Request, res: Response) => {
-  console.log(req.file);
   if (req.file) {
     getText(req.file.path)
       .then((text) => {
@@ -19,8 +18,9 @@ app.post("/", upload.single("image"), (req: Request, res: Response) => {
       .catch((error) => {
         res.status(404).send(error);
       });
+  } else {
+    res.status(404).send("file is broken.");
   }
-  // res.status(404).send("file is broken.");
 });
 
 app.listen(5000, () =>
@@ -38,6 +38,11 @@ async function getText(imagePath: string): Promise<string> {
           data: { text },
         } = await worker.recognize(imagePath);
         resolve(text);
+        if (imagePath) {
+          fs.unlink(imagePath, (err) => {
+            if (err) console.error(err);
+          });
+        }
 
         await worker.terminate();
       })();
