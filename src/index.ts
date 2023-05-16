@@ -9,6 +9,10 @@ app.use(cors());
 
 const upload = multer({ dest: "uploads/" });
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello World");
+});
+
 app.post("/", upload.single("image"), (req: Request, res: Response) => {
   if (req.file) {
     getText(req.file.path)
@@ -23,9 +27,7 @@ app.post("/", upload.single("image"), (req: Request, res: Response) => {
   }
 });
 
-app.listen(5000, () =>
-  console.log("Server listening on http://localhost:5000")
-);
+app.listen(3000, () => console.log("Server listening"));
 
 async function getText(imagePath: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
