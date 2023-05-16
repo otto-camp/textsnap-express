@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import multer from "multer";
-import { createWorker } from "tesseract.js";
+import { createScheduler, createWorker } from "tesseract.js";
 import fs from "fs";
 
 const app = express();
@@ -17,7 +17,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.post("/", upload.single("image"), (req: Request, res: Response) => {
   if (req.file) {
-    getText(req.file.path)
+    getText(req.file.path, "eng")
       .then((text) => {
         res.send(text);
       })
@@ -29,13 +29,13 @@ app.post("/", upload.single("image"), (req: Request, res: Response) => {
   }
 });
 
-async function getText(imagePath: string): Promise<string> {
+async function getText(imagePath: string, lang: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
+    const worker = await createWorker();
     try {
-      const worker = await createWorker();
       (async () => {
-        await worker.loadLanguage("eng+tur");
-        await worker.initialize("eng+tur");
+        await worker.loadLanguage(lang);
+        await worker.initialize(lang);
         const {
           data: { text },
         } = await worker.recognize(imagePath);
@@ -45,7 +45,6 @@ async function getText(imagePath: string): Promise<string> {
             if (err) console.error(err);
           });
         }
-
         await worker.terminate();
       })();
     } catch (error) {
