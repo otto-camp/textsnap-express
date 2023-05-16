@@ -5,7 +5,9 @@ import { createWorker } from "tesseract.js";
 import fs from "fs";
 
 const app = express();
+const port = (process.env.PORT as any) || 3000;
 app.use(cors());
+app.listen(port, "0.0.0.0", () => console.log("Server listening"));
 
 const upload = multer({ dest: "uploads/" });
 
@@ -26,8 +28,6 @@ app.post("/", upload.single("image"), (req: Request, res: Response) => {
     res.status(404).send("file is broken.");
   }
 });
-
-app.listen(3000, () => console.log("Server listening"));
 
 async function getText(imagePath: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
