@@ -6,8 +6,6 @@ import multer from "multer";
 
 import { getTextFromImageFile } from "./services/getTextFromImageFile";
 import { errorHandler } from "./middlewares/errorHandler";
-import path from "path";
-import fs from "fs";
 import { getTextFromImageUrl } from "./services/getTextFromImageUrl";
 
 dotenv.config();
@@ -16,6 +14,7 @@ const upload = multer({ dest: "uploads/" });
 const app = express();
 const port = (process.env.PORT as any) || 3000;
 
+app.use(express.json({ limit: "10mb" }));
 app.use(cors(), bodyParser.json());
 
 app.listen(port, "0.0.0.0", () =>
