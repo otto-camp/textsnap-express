@@ -26,11 +26,11 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.post(
-  "/eng/image",
+  "/:lang/image",
   upload.single("image"),
   (req: Request, res: Response) => {
     if (req.file) {
-      getTextFromImageFile(req.file.path, "eng")
+      getTextFromImageFile(req.file.path, req.params.lang)
         .then((text) => {
           res.send(text);
         })
@@ -43,9 +43,9 @@ app.post(
   }
 );
 
-app.post("/eng/image-url", (req: Request, res: Response) => {
+app.post("/:lang/image-url", (req: Request, res: Response) => {
   if (req.body.url) {
-    getTextFromImageUrl(req.body.url, "eng")
+    getTextFromImageUrl(req.body.url, req.params.lang)
       .then((text) => {
         res.send(text);
       })
@@ -53,40 +53,6 @@ app.post("/eng/image-url", (req: Request, res: Response) => {
         res.status(404).send(error);
       });
   } else {
-    console.log(req.body);
-    res.status(404).send("file is broken.");
-  }
-});
-
-app.post(
-  "/tur/image",
-  upload.single("image"),
-  (req: Request, res: Response) => {
-    if (req.file) {
-      getTextFromImageFile(req.file.path, "tur")
-        .then((text) => {
-          res.send(text);
-        })
-        .catch((error) => {
-          res.status(404).send(error);
-        });
-    } else {
-      res.status(404).send("file is broken.");
-    }
-  }
-);
-
-app.post("/tur/image-url", (req: Request, res: Response) => {
-  if (req.body.url) {
-    getTextFromImageUrl(req.body.url, "tur")
-      .then((text) => {
-        res.send(text);
-      })
-      .catch((error) => {
-        res.status(404).send(error);
-      });
-  } else {
-    console.log(req.body);
     res.status(404).send("file is broken.");
   }
 });
