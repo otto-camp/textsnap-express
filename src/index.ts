@@ -24,7 +24,7 @@ if (cluster.isMaster) {
 
   console.log(`Master cluster setting up ${numWorkers} workers...`);
 
-  for (let i = 0; i < numWorkers; i++) {
+  for (let i = 0; i < 2; i++) {
     cluster.fork();
   }
 
