@@ -13,7 +13,7 @@ export async function getTextFromImageFile(imagePath: string, lang: string): Pro
         } = await worker.recognize(imagePath);
         resolve(text);
         if (imagePath) {
-          fs.unlink(imagePath, (err) => {
+          await fs.unlink(imagePath, (err) => {
             if (err) console.error(err);
           });
         }
