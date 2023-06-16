@@ -12,9 +12,8 @@ import { rateLimit } from "express-rate-limit";
 dotenv.config();
 
 const limiter = rateLimit({
-  max: 5,
+  max: 15,
   standardHeaders: true,
-  legacyHeaders: false,
 });
 
 const upload = multer({ dest: "uploads/" });

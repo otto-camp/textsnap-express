@@ -2,10 +2,9 @@
   "name": "ocr-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon -r ts-node src/index.ts",
     "build": "tsc"
   },
   "author": "",
@@ -22,6 +21,7 @@
   },
   "dependencies": {
     "body-parser": "^1.20.2",
+    "bull": "^4.10.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
@@ -30,6 +30,7 @@
     "isomorphic-fetch": "^3.0.0",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.1",
+    "p-queue": "^7.3.4",
     "tesseract.js": "^4.0.5"
   }
 }

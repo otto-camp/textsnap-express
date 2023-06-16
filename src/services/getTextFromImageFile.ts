@@ -1,7 +1,10 @@
 import fs from "fs";
 import { createWorker } from "tesseract.js";
 
-export async function getTextFromImageFile(imagePath: string, lang: string): Promise<string> {
+export async function getTextFromImageFile(
+  imagePath: string,
+  lang: string
+): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const worker = await createWorker();
     try {
@@ -13,9 +16,7 @@ export async function getTextFromImageFile(imagePath: string, lang: string): Pro
         } = await worker.recognize(imagePath);
         resolve(text);
         if (imagePath) {
-          await fs.unlink(imagePath, (err) => {
-            if (err) console.error(err);
-          });
+          await fs.unlinkSync(imagePath);
         }
         await worker.terminate();
       })();
