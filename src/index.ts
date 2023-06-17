@@ -12,20 +12,10 @@ dotenv.config();
 const upload = multer({ dest: "uploads/" });
 const app = express();
 const port = (process.env.PORT as any) || 3000;
-const validateReferrer = (req: Request, res: Response, next: NextFunction) => {
-  const allowedSite = "https://textsnap.vercel.app";
 
-  if (req.headers.origin === allowedSite) {
-    next();
-  } else {
-    res.status(403).send("Access denied.");
-  }
-};
 
 app.use(express.json({ limit: "2mb" }));
 app.use(cors());
-
-app.use(validateReferrer);
 
 app.listen(port, "0.0.0.0", () => {
   console.log("Server listening on port", port);
