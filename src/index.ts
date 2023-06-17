@@ -15,7 +15,7 @@ const port = (process.env.PORT as any) || 3000;
 const validateReferrer = (req: Request, res: Response, next: NextFunction) => {
   const allowedSite = "https://textsnap.vercel.app";
 
-  if (req.headers.referer === allowedSite) {
+  if (req.headers.origin === allowedSite) {
     next();
   } else {
     res.status(403).send("Access denied.");
