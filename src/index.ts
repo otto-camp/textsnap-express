@@ -1,28 +1,31 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
-import bodyParser from "body-parser";
 import multer from "multer";
 
-import { getTextFromImageFile } from "./services/getTextFromImageFile";
 import { errorHandler } from "./middlewares/errorHandler";
-import { getTextFromImageUrl } from "./services/getTextFromImageUrl";
-import { rateLimit } from "express-rate-limit";
+import { createWorker } from "tesseract.js";
+import { unlinkSync } from "fs";
 
 dotenv.config();
-
-const limiter = rateLimit({
-  max: 15,
-  standardHeaders: true,
-});
 
 const upload = multer({ dest: "uploads/" });
 const app = express();
 const port = (process.env.PORT as any) || 3000;
+const validateReferrer = (req: Request, res: Response, next: NextFunction) => {
+  const allowedSite = "https://textsnap.vercel.app";
 
-app.use(limiter);
+  if (req.headers.referer === allowedSite) {
+    next();
+  } else {
+    res.status(403).send("Access denied.");
+  }
+};
+
 app.use(express.json({ limit: "2mb" }));
-app.use(cors(), bodyParser.json());
+app.use(cors());
+
+app.use(validateReferrer);
 
 app.listen(port, "0.0.0.0", () => {
   console.log("Server listening on port", port);
@@ -37,13 +40,20 @@ app.post(
   upload.single("image"),
   async (req: Request, res: Response) => {
     if (req.file) {
-      await getTextFromImageFile(req.file.path, req.params.lang)
-        .then((text) => {
-          res.send(text);
-        })
-        .catch((error) => {
-          res.status(404).send(error);
-        });
+      const worker = await createWorker();
+      try {
+        await worker.loadLanguage(req.params.lang);
+        await worker.initialize(req.params.lang);
+        const {
+          data: { text },
+        } = await worker.recognize(req.file.path);
+        res.status(200).send(text);
+        await worker.terminate();
+        unlinkSync(req.file.path);
+      } catch (error) {
+        res.status(404).send(error);
+        unlinkSync(req.file.path);
+      }
     } else {
       res.status(404).send("file is broken.");
     }
@@ -52,13 +62,18 @@ app.post(
 
 app.post("/:lang/image-url", async (req: Request, res: Response) => {
   if (req.body.url) {
-    await getTextFromImageUrl(req.body.url, req.params.lang)
-      .then((text) => {
-        res.send(text);
-      })
-      .catch((error) => {
-        res.status(404).send(error);
-      });
+    const worker = await createWorker();
+    try {
+      await worker.loadLanguage(req.params.lang);
+      await worker.initialize(req.params.lang);
+      const {
+        data: { text },
+      } = await worker.recognize(req.body.url);
+      res.status(202).send(text);
+      await worker.terminate();
+    } catch (error) {
+      res.status(404).send(error);
+    }
   } else {
     res.status(404).send("file is broken.");
   }
